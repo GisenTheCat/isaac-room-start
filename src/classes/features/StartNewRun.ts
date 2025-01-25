@@ -138,16 +138,21 @@ export class StartNewRun extends ModFeature {
       for (const roomGridIndex of adjacentRoomIndices) {
         const roomDescriptor = level.GetRoomByIdx(roomGridIndex);
         const roomData = roomDescriptor.Data;
+        const foundRooms = [];
         if (roomData === undefined) {
           // Not sure if it's possible to have this case.
           continue;
         }
-        if (isRoomType(roomData, ...enabledRoomTypes)) {
-          const stopTime = getTime();
-          print(
-            `${LOG_HEADER} spawned adjacent to an enabled room type after ${reseedIter}/${reseedLimit} reseeds and ${stopTime - startTime} ms`,
-          );
-          return;
+        for (const enabledRoomType of enabledRoomTypes) {
+          if (isRoomType(roomData, enabledRoomType)) {
+            foundRooms.push(enabledRoomType);
+            if (foundRooms.length != enabledRoomTypes.length) return;
+            const stopTime = getTime();
+            print(
+              `${LOG_HEADER} spawned adjacent to an enabled room type after ${reseedIter}/${reseedLimit} reseeds and ${stopTime - startTime} ms`,
+            );
+            return;
+          }
         }
       }
       Isaac.ExecuteCommand("reseed");
